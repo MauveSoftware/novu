@@ -96,6 +96,13 @@ Return the proper web image name
 {{- end -}}
 
 {{/*
+Return the proper widget image name
+*/}}
+{{- define "novu-widget.image" -}}
+{{ include "common.images.image" (dict "imageRoot" .Values.widget.image "global" .Values.global) }}
+{{- end -}}
+
+{{/*
 Return the proper image name (for the init container volume-permissions image)
 */}}
 {{- define "novu-web.volumePermissions.image" -}}

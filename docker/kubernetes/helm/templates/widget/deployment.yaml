@@ -1,0 +1,158 @@
+apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
+kind: Deployment
+metadata:
+  name: {{ printf "%s-%s" .Release.Name "widget"  }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: {{ printf "%s-%s" .Release.Name "widget"  }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not .Values.widget.autoscaling.enabled }}
+  replicas: {{ .Values.widget.replicaCount }}
+  {{- end }}
+  {{- if .Values.widget.updateStrategy }}
+  strategy: {{- toYaml .Values.widget.updateStrategy | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: {{ printf "%s-%s" .Release.Name "widget"  }}
+  template:
+    metadata:
+      {{- if .Values.widget.podAnnotations }}
+      annotations: {{- include "common.tplvalues.render" (dict "value" .Values.widget.podAnnotations "context" $) | nindent 8 }}
+      {{- end }}
+      labels: {{- include "common.labels.standard" . | nindent 8 }}
+        app.kubernetes.io/component: {{ printf "%s-%s" .Release.Name "widget"  }}
+        {{- if .Values.widget.podLabels }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.widget.podLabels "context" $) | nindent 8 }}
+        {{- end }}
+        {{- if .Values.commonLabels }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ template "novu.serviceAccountName" . }}
+      {{- include "novu.imagePullSecrets" . | nindent 6 }}
+      {{- if .Values.widget.hostAliases }}
+      hostAliases: {{- include "common.tplvalues.render" (dict "value" .Values.widget.hostAliases "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.widget.affinity }}
+      affinity: {{- include "common.tplvalues.render" ( dict "value" .Values.widget.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      affinity:
+        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.widget.podAffinityPreset "component" "novu-widget" "context" $) | nindent 10 }}
+        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.widget.podAntiAffinityPreset "component" "novu-widget" "context" $) | nindent 10 }}
+        nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.widget.nodeAffinityPreset.type "key" .Values.widget.nodeAffinityPreset.key "values" .Values.widget.nodeAffinityPreset.values) | nindent 10 }}
+      {{- end }}
+      {{- if .Values.widget.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" ( dict "value" .Values.widget.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.widget.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.widget.tolerations "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.widget.priorityClassName }}
+      priorityClassName: {{ .Values.widget.priorityClassName | quote }}
+      {{- end }}
+      {{- if .Values.widget.schedulerName }}
+      schedulerName: {{ .Values.widget.schedulerName | quote }}
+      {{- end }}
+      {{- if .Values.widget.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- include "common.tplvalues.render" (dict "value" .Values.widget.topologySpreadConstraints "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.widget.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.widget.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.widget.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.widget.terminationGracePeriodSeconds }}
+      {{- end }}
+      {{- if .Values.widget.initContainers }}
+      initContainers:
+        {{- include "common.tplvalues.render" (dict "value" .Values.widget.initContainers "context" $) | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: novu-widget
+          image: {{ template "novu-widget.image" . }}
+          imagePullPolicy: {{ .Values.widget.image.pullPolicy }}
+          {{- if .Values.widget.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.widget.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.diagnosticMode.enabled }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.diagnosticMode.command "context" $) | nindent 12 }}
+          {{- else if .Values.widget.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.widget.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.diagnosticMode.enabled }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.diagnosticMode.args "context" $) | nindent 12 }}
+          {{- else if .Values.widget.args }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.widget.args "context" $) | nindent 12 }}
+          {{- end }}
+          env:
+            - name: PORT
+              value: {{ print .Values.widget.port | quote }}
+            - name: REACT_APP_API_URL
+              value : {{  .Values.widget.apiExternalEndpoint }}
+            - name: REACT_APP_WS_URL
+              value : {{  .Values.widget.wsExternalEndpoint }}
+            - name: REACT_APP_ENVIRONMENT
+              value: {{print .Values.api.env.NODE_ENV | quote }}
+            {{- if .Values.api.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.api.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          envFrom:
+            {{- if .Values.widget.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.widget.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.widget.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.widget.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          {{- if .Values.widget.resources }}
+          resources: {{- toYaml .Values.widget.resources | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.widget.port }}
+          {{- if not .Values.diagnosticMode.enabled }}
+          {{- if .Values.widget.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.widget.customLivenessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.widget.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.widget.livenessProbe "enabled") "context" $) | nindent 12 }}
+            httpGet:
+              path: /v1/health-check
+              port: http
+          {{- end }}
+          {{- if .Values.widget.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.widget.customReadinessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.widget.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.widget.readinessProbe "enabled") "context" $) | nindent 12 }}
+            httpGet:
+              path: /v1/health-check
+              port: http
+          {{- end }}
+          {{- if .Values.widget.customStartupProbe }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.widget.customStartupProbe "context" $) | nindent 12 }}
+          {{- else if .Values.widget.startupProbe.enabled }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.widget.startupProbe "enabled") "context" $) | nindent 12 }}
+            httpGet:
+              path: /v1/health-check
+              port: http
+          {{- end }}
+          {{- end }}
+          {{- if .Values.widget.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.widget.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.widget.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.widget.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+        {{- if .Values.widget.sidecars }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.widget.sidecars "context" $) | nindent 8 }}
+        {{- end }}
+      volumes:
+        {{- if .Values.widget.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.widget.extraVolumes "context" $) | nindent 8 }}
+        {{- end }}
