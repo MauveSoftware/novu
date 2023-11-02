@@ -102,6 +102,8 @@ spec:
               value : {{  .Values.web.apiExternalEndpoint }}
             - name: REACT_APP_WS_URL
               value : {{  .Values.web.wsExternalEndpoint }}
+            - name: REACT_APP_WIDGET_EMBED_PATH
+              value : {{  .Values.web.env.WIDGET_EMBED_PATH }}
 
             {{- if .Values.web.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.web.extraEnvVars "context" $) | nindent 12 }}

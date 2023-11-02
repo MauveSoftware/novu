@@ -1567,6 +1567,7 @@ web:
     ## @param web.env.NODE_ENV The environment of the app.
     ##
     NODE_ENV: production
+    WIDGET_EMBED_PATH: "http://novu-embed:4701/embed.umd.min.js"
 
   ## @param web.apiExternalEndpoint The external endpoint of the API
   ##
@@ -1575,6 +1576,292 @@ web:
   ## @param web.wsExternalEndpoint The external websocket endpoint of the API
   wsExternalEndpoint: ws://localhost:3002
   #
+
+## @section Novu Embed Parameters
+##
+embed:
+  ## Novu image
+  ## ref: https://github.com/orgs/novuhq/packages
+  ## @param embed.image.registry Novu image registry
+  ## @param embed.image.repository Novu image repository
+  ## @param embed.image.tag Novu image tag (immutable tags are recommended)
+  ## @param embed.image.digest Novu image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag image tag (immutable tags are recommended)
+  ## @param embed.image.pullPolicy Novu image pull policy
+  ## @param embed.image.pullSecrets Novu image pull secrets
+  ##
+  image:
+    registry: ghcr.io
+    repository: novuhq/novu/embed
+    tag: 0.21.0
+    digest: ''
+    ## Specify a imagePullPolicy
+    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## e.g:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+  ## @param embed.replicaCount Number of novu ws replicas to deploy
+  ##
+  replicaCount: 1
+  ## Configure extra options for novu ws containers' liveness and readiness probes
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+  ## @param embed.livenessProbe.enabled Enable livenessProbe on novu ws containers
+  ## @param embed.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+  ## @param embed.livenessProbe.periodSeconds Period seconds for livenessProbe
+  ## @param embed.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+  ## @param embed.livenessProbe.failureThreshold Failure threshold for livenessProbe
+  ## @param embed.livenessProbe.successThreshold Success threshold for livenessProbe
+  ##
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  ## @param embed.readinessProbe.enabled Enable readinessProbe on novu ws containers
+  ## @param embed.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+  ## @param embed.readinessProbe.periodSeconds Period seconds for readinessProbe
+  ## @param embed.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+  ## @param embed.readinessProbe.failureThreshold Failure threshold for readinessProbe
+  ## @param embed.readinessProbe.successThreshold Success threshold for readinessProbe
+  ##
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  ## @param embed.startupProbe.enabled Enable startupProbe on novu ws containers
+  ## @param embed.startupProbe.initialDelaySeconds Initial delay seconds for startupProbe
+  ## @param embed.startupProbe.periodSeconds Period seconds for startupProbe
+  ## @param embed.startupProbe.timeoutSeconds Timeout seconds for startupProbe
+  ## @param embed.startupProbe.failureThreshold Failure threshold for startupProbe
+  ## @param embed.startupProbe.successThreshold Success threshold for startupProbe
+  ##
+  startupProbe:
+    enabled: false
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  ## @param embed.customLivenessProbe Custom livenessProbe that overrides the default one
+  ##
+  customLivenessProbe: {}
+  ## @param embed.customReadinessProbe Custom readinessProbe that overrides the default one
+  ##
+  customReadinessProbe: {}
+  ## @param embed.customStartupProbe Custom startupProbe that overrides the default one
+  ##
+  customStartupProbe: {}
+  ## novu ws resource requests and limits
+  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ## @param embed.resources.limits The resources limits for the novu ws containers
+  ## @param embed.resources.requests The requested resources for the novu ws containers
+  ##
+  resources:
+    limits: {}
+    requests: {}
+  ## Configure Pods Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param embed.podSecurityContext.enabled Enabled novu ws pods' Security Context
+  ## @param embed.podSecurityContext.fsGroup Set novu ws pod's Security Context fsGroup
+  ##
+  podSecurityContext:
+    enabled: false
+    fsGroup: 1001
+  ## Configure Container Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  ## @param embed.containerSecurityContext.enabled Enabled novu ws containers' Security Context
+  ## @param embed.containerSecurityContext.runAsUser Set novu ws containers' Security Context runAsUser
+  ## @param embed.containerSecurityContext.runAsNonRoot Set novu ws containers' Security Context runAsNonRoot
+  ## @param embed.containerSecurityContext.readOnlyRootFilesystem Set novu ws containers' Security Context runAsNonRoot
+  ##
+  containerSecurityContext:
+    enabled: false
+    runAsUser: 1001
+    runAsNonRoot: true
+    readOnlyRootFilesystem: false
+
+  ## @param embed.existingConfigmap The name of an existing ConfigMap with your custom configuration for novu ws
+  ##
+  existingConfigmap:
+  ## @param embed.command Override default container command (useful when using custom images)
+  ##
+  command: []
+  ## @param embed.args Override default container args (useful when using custom images)
+  ##
+  args: []
+  ## @param embed.hostAliases novu ws pods host aliases
+  ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+  ##
+  hostAliases: []
+  ## @param embed.podLabels Extra labels for novu ws pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  ##
+  podLabels: {}
+  ## @param embed.podAnnotations Annotations for novu ws pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  ##
+  podAnnotations: {}
+  ## @param embed.podAffinityPreset Pod affinity preset. Ignored if `widget.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ''
+  ## @param embed.podAntiAffinityPreset Pod anti-affinity preset. Ignored if `widget.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## Pod Disruption Budget configuration
+  ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb
+  ## @param embed.pdb.create Enable/disable a Pod Disruption Budget creation
+  ## @param embed.pdb.minAvailable Minimum number/percentage of pods that should remain scheduled
+  ## @param embed.pdb.maxUnavailable Maximum number/percentage of pods that may be made unavailable
+  ##
+  pdb:
+    create: false
+    minAvailable: 1
+    maxUnavailable: ''
+  ## Autoscaling configuration
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## @param embed.autoscaling.enabled Enable autoscaling for ws
+  ## @param embed.autoscaling.minReplicas Minimum number of ws replicas
+  ## @param embed.autoscaling.maxReplicas Maximum number of ws replicas
+  ## @param embed.autoscaling.targetCPU Target CPU utilization percentage
+  ## @param embed.autoscaling.targetMemory Target Memory utilization percentage
+  ##
+  autoscaling:
+    enabled: false
+    minReplicas: ''
+    maxReplicas: ''
+    targetCPU: ''
+    targetMemory: ''
+  ## Node embed.affinity preset
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ##
+  nodeAffinityPreset:
+    ## @param embed.nodeAffinityPreset.type Node affinity preset type. Ignored if `widget.affinity` is set. Allowed values: `soft` or `hard`
+    ##
+    type: ''
+    ## @param embed.nodeAffinityPreset.key Node label key to match. Ignored if `widget.affinity` is set
+    ##
+    key: ''
+    ## @param embed.nodeAffinityPreset.values Node label values to match. Ignored if `widget.affinity` is set
+    ## E.g.
+    ## values:
+    ##   - e2e-az1
+    ##   - e2e-az2
+    ##
+    values: []
+  ## @param embed.affinity Affinity for novu ws pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## NOTE: `embed.podAffinityPreset`, `widget.podAntiAffinityPreset`, and `widget.nodeAffinityPreset` will be ignored when it's set
+  ##
+  affinity: {}
+  ## @param embed.nodeSelector Node labels for novu ws pods assignment
+  ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+  ## @param embed.tolerations Tolerations for novu ws pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+  ## @param embed.updateStrategy.type novu ws statefulset strategy type
+  ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  ##
+  updateStrategy:
+    ## StrategyType
+    ## Can be set to RollingUpdate or OnDelete
+    ##
+    type: RollingUpdate
+
+  ## ONLY FOR STATEFULSETS
+  ## @param embed.podManagementPolicy Statefulset Pod management policy, it needs to be Parallel to be able to complete the cluster join
+  ## Ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  ##
+  podManagementPolicy: OrderedReady
+
+  ## @param embed.priorityClassName novu ws pods' priorityClassName
+  ##
+  priorityClassName: ''
+  ## @param embed.topologySpreadConstraints Topology Spread Constraints for pod assignment spread across your cluster among failure-domains. Evaluated as a template
+  ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#spread-constraints-for-pods
+  ##
+  topologySpreadConstraints: []
+  ## @param embed.schedulerName Name of the k8s scheduler (other than default) for novu ws pods
+  ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
+  schedulerName: ''
+  ## @param embed.terminationGracePeriodSeconds Seconds Redmine pod needs to terminate gracefully
+  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods
+  ##
+  terminationGracePeriodSeconds: ''
+  ## @param embed.lifecycleHooks for the novu ws container(s) to automate configuration before or after startup
+  ##
+  lifecycleHooks: {}
+  ## @param embed.extraEnvVars Array with extra environment variables to add to novu ws nodes
+  ## e.g:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: "bar"
+  ##
+  extraEnvVars: []
+  ## @param embed.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for novu ws nodes
+  ##
+  extraEnvVarsCM: ''
+  ## @param embed.extraEnvVarsSecret Name of existing Secret containing extra env vars for novu ws nodes
+  ##
+  extraEnvVarsSecret: ''
+  ## @param embed.extraVolumes Optionally specify extra list of additional volumes for the novu ws pod(s)
+  ##
+  extraVolumes: []
+  ## @param embed.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the novu ws container(s)
+  ##
+  extraVolumeMounts: []
+  ## @param embed.sidecars Add additional sidecar containers to the novu ws pod(s)
+  ## e.g:
+  ## sidecars:
+  ##   - name: your-image-name
+  ##     image: your-image
+  ##     imagePullPolicy: Always
+  ##     ports:
+  ##       - name: portname
+  ##         containerPort: 1234
+  ##
+  sidecars: []
+  ## @param embed.initContainers Add additional init containers to the novu ws pod(s)
+  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  ## e.g:
+  ## initContainers:
+  ##  - name: your-image-name
+  ##    image: your-image
+  ##    imagePullPolicy: Always
+  ##    command: ['sh', '-c', 'echo "hello world"']
+  ##
+  initContainers: []
+
+  service:
+    ## @param embed.service.annotations Additional custom annotations for ws service
+    ##
+    annotations: {}
+    ## @param embed.service.extraPorts Extra port to expose on ws service
+    ##
+    extraPorts: []
+
+  port: 4701
+
+  env:
+    WIDGET_URL: http://novu-web:4701
+
 
 ## @section Novu Widget Parameters
 ##

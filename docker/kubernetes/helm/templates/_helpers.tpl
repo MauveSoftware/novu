@@ -103,6 +103,13 @@ Return the proper widget image name
 {{- end -}}
 
 {{/*
+Return the proper embed image name
+*/}}
+{{- define "novu-embed.image" -}}
+{{ include "common.images.image" (dict "imageRoot" .Values.embed.image "global" .Values.global) }}
+{{- end -}}
+
+{{/*
 Return the proper image name (for the init container volume-permissions image)
 */}}
 {{- define "novu-web.volumePermissions.image" -}}
