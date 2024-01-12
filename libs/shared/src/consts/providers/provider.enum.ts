@@ -15,6 +15,7 @@ export enum CredentialsKeyEnum {
   Token = 'token',
   From = 'from',
   SenderName = 'senderName',
+  ContentType = 'contentType',
   ApplicationId = 'applicationId',
   ClientId = 'clientId',
   ProjectName = 'projectName',
@@ -34,9 +35,15 @@ export enum CredentialsKeyEnum {
   AuthenticateByToken = 'authenticateByToken',
   AuthenticationTokenKey = 'authenticationTokenKey',
   AccessKey = 'accessKey',
+  InstanceId = 'instanceId',
   ApiToken = 'apiToken',
   ApiURL = 'apiURL',
   AppID = 'appID',
+  alertUid = 'alertUid',
+  title = 'title',
+  imageUrl = 'imageUrl',
+  state = 'state',
+  externalLink = 'externalLink',
 }
 
 export enum EmailProviderIdEnum {
@@ -76,6 +83,7 @@ export enum SmsProviderIdEnum {
   Infobip = 'infobip-sms',
   BurstSms = 'burst-sms',
   BulkSms = 'bulk-sms',
+  ISendSms = 'isend-sms',
   Clickatell = 'clickatell',
   FortySixElks = 'forty-six-elks',
   Kannel = 'kannel',
@@ -99,6 +107,9 @@ export enum ChatProviderIdEnum {
   Mattermost = 'mattermost',
   Ryver = 'ryver',
   Zulip = 'zulip',
+  GrafanaOnCall = 'grafana-on-call',
+  GetStream = 'getstream',
+  RocketChat = 'rocket-chat',
 }
 
 export enum PushProviderIdEnum {
@@ -108,6 +119,7 @@ export enum PushProviderIdEnum {
   OneSignal = 'one-signal',
   Pushpad = 'pushpad',
   PushWebhook = 'push-webhook',
+  PusherBeams = 'pusher-beams',
 }
 
 export enum InAppProviderIdEnum {

@@ -1,5 +1,5 @@
 # start build stage
-FROM nikolaik/python-nodejs:python3.10-nodejs16-alpine as builder
+FROM nikolaik/python-nodejs:python3.10-nodejs20-alpine as builder
 ENV NX_DAEMON=false
 
 WORKDIR /usr/src/app
@@ -16,6 +16,8 @@ COPY libs/testing ./libs/testing
 COPY packages/client ./packages/client
 COPY libs/shared ./libs/shared
 COPY libs/design-system ./libs/design-system
+COPY libs/shared-web ./libs/shared-web
+
 COPY packages/notification-center ./packages/notification-center
 COPY packages/stateless ./packages/stateless
 COPY packages/node ./packages/node
@@ -38,7 +40,7 @@ RUN NX_DAEMON=false pnpm build:web
 # end build stage
 
 # start production stage
-FROM node:16-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
